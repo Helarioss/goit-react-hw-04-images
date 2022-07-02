@@ -17,7 +17,9 @@ const STATUS = {
 };
 
 export const ImageGallery = ({ search }) => {
-  const [searchState, setSearchState] = useState({ search, page: 1 });
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+
   const [images, setImages] = useState([]);
   const [total, setTotal] = useState(0);
 
@@ -25,19 +27,19 @@ export const ImageGallery = ({ search }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    setQuery(search);
     setImages([]);
-    setSearchState({ search, page: 1 });
+    setPage(1);
   }, [search]);
 
   useEffect(() => {
-    const { search, page } = searchState;
-    if (search === '') return;
+    if (query === '') return;
 
     async function searchImages() {
       setStatus(STATUS.pending);
 
       try {
-        const response = await fetchImages(search, page);
+        const response = await fetchImages(query, page);
         setImages(images => [...images, ...response.hits]);
         setTotal(response.total);
         setStatus(STATUS.resolved);
@@ -46,21 +48,20 @@ export const ImageGallery = ({ search }) => {
       }
     }
     searchImages();
-  }, [searchState]);
-
-  const loadMore = () => {
-    setSearchState(state => ({ ...state, page: state.page + 1 }));
-  };
+  }, [query, page]);
 
   useEffect(() => {
-    const { page } = searchState;
     if (page === 1) return;
 
     window.scrollBy({
       top: document.body.clientHeight,
       behavior: 'smooth',
     });
-  }, [searchState, images]);
+  }, [page, images]);
+
+  const loadMore = () => {
+    setPage(page => page + 1);
+  };
 
   if (status === STATUS.idle) return <div></div>;
   if (status === STATUS.rejected) return <div>{error.message}</div>;

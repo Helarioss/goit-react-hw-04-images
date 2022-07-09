@@ -63,9 +63,6 @@ export const ImageGallery = ({ search }) => {
     setPage(page => page + 1);
   };
 
-  if (status === STATUS.idle) return <div></div>;
-  if (status === STATUS.rejected) return <div>{error.message}</div>;
-
   return (
     <>
       {status === STATUS.idle && <div></div>}
